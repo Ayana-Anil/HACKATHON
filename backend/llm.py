@@ -19,9 +19,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from groq import Groq
-def chunks_to_strings(retrieved_chunks: list[dict]) -> list[str]:
-    """Convert retriever.py's dict-based chunks into plain strings for ask_llm()."""
-    return [c.get("text", c.get("content", "")) for c in retrieved_chunks]
+
 
 # ── Load .env sitting next to this file ──────────────────────────────
 _env_path = Path(__file__).resolve().parent / ".env"
@@ -38,6 +36,12 @@ if not _API_KEY:
 
 # ── Groq client (reused across requests) ─────────────────────────────
 _client = Groq(api_key=_API_KEY)
+
+
+def chunks_to_strings(retrieved_chunks: list[dict]) -> list[str]:
+    """Convert retriever.py's dict-based chunks into plain strings for ask_llm()."""
+    return [c.get("text", c.get("content", "")) for c in retrieved_chunks]
+
 
 # ── System prompt ────────────────────────────────────────────────────
 _SYSTEM_PROMPT = (
@@ -100,3 +104,12 @@ def ask_llm(
     )
 
     return chat_completion.choices[0].message.content.strip()
+
+
+if __name__ == "__main__":
+    fake_chunks = [
+        "The midterm exam is worth 25% of the final grade and will be held on March 14th.",
+        "Office hours are Tuesdays and Thursdays from 2-4 PM in Room 214.",
+    ]
+    print(ask_llm("When is the midterm and what is it worth?", fake_chunks))
+    print(ask_llm("What textbook is required?", fake_chunks))
