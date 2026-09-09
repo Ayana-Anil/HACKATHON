@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Syllabus Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Typography: Syne (Display) & Outfit (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- Top Navbar -->
+    <header class="navbar">
+      <div class="brand">
+        <span class="brand-tag">RAG</span>
+        <h1>Syllabus Assistant<span class="accent-dot">.</span></h1>
+      </div>
+
+      <div class="nav-controls">
+        <!-- Live Document Indicator -->
+        <div class="doc-status-indicator">
+          <span class="status-badge" id="statusBadge">No Syllabus Active</span>
+          <span class="current-doc-name" id="currentDocName"></span>
+        </div>
+
+        <!-- On/Off Dark Mode Switch -->
+        <div class="theme-toggle-box">
+          <span class="switch-label" id="themeLabel">DARK</span>
+          <label class="switch" for="themeToggle">
+            <input type="checkbox" id="themeToggle" checked aria-label="Toggle theme" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </header>
+
+    <!-- Workspace Body -->
+    <main class="main-workspace">
+      
+      <!-- Left Column: Upload & Configuration -->
+      <aside class="sidebar-column">
+        <section class="card upload-card">
+          <h2 class="card-title">Knowledge Base</h2>
+          <p class="card-subtitle">Upload your course syllabus PDF to process with local embeddings and FAISS.</p>
+
+          <form id="uploadForm">
+            <!-- Dropzone Area -->
+            <div class="drop-zone" id="dropZone">
+              <input type="file" id="fileInput" accept=".pdf" hidden />
+              <svg class="zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M12 12v9m-4-4 4-4 4 4"/>
+              </svg>
+              <p class="zone-prompt">Drag & drop your PDF here</p>
+              <button type="button" class="btn btn-secondary btn-sm" id="selectFileBtn">Browse File</button>
+            </div>
+
+            <!-- Selected File Metadata -->
+            <div class="file-details hidden" id="fileDetails">
+              <div class="file-meta-row">
+                <div class="file-info">
+                  <span class="file-name" id="fileNameDisplay">document.pdf</span>
+                  <span class="file-size" id="fileSizeDisplay">0 KB</span>
+                </div>
+              </div>
+
+              <!-- Upload Submission Button -->
+              <button type="submit" class="btn btn-primary btn-full" id="uploadBtn" disabled>
+                🚀 Index Syllabus PDF
+              </button>
+            </div>
+          </form>
+
+          <!-- Upload Status Banner -->
+          <div class="status-banner hidden" id="uploadStatus"></div>
+        </section>
+
+        <!-- Suggested Questions / Quick Chips -->
+        <section class="card chips-card">
+          <h3 class="card-subtitle-bold">Quick Inquiries</h3>
+          <div class="chips-container">
+            <button type="button" class="chip disabled" data-prompt="What is the grading policy and percentage breakdown?">Grading Breakdown</button>
+            <button type="button" class="chip disabled" data-prompt="When are the midterms and final exam scheduled?">Exam Dates</button>
+            <button type="button" class="chip disabled" data-prompt="What is the policy for late assignment submissions?">Late Policy</button>
+            <button type="button" class="chip disabled" data-prompt="What are the instructor's office hours and email address?">Office Hours</button>
+          </div>
+        </section>
+
+        <!-- Local Stack Metadata -->
+        <section class="card info-card">
+          <div class="meta-item">
+            <span class="meta-label">LLM Engine</span>
+            <span class="meta-value">Ollama (Local)</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Vector Store</span>
+            <span class="meta-value">FAISS Index</span>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Right Column: Interactive Chat -->
+      <section class="chat-column card">
+        <header class="chat-header">
+          <div class="chat-info">
+            <h2>Course Q&A</h2>
+            <span class="chat-subhead">Ground-truth answers extracted from syllabus context</span>
+          </div>
+          <button type="button" class="btn-ghost" id="clearChatBtn">Clear Log</button>
+        </header>
+
+        <!-- Dynamic Message Stream -->
+        <div class="chat-messages" id="chatMessages">
+          <div class="message system-message">
+            <div class="avatar">💡</div>
+            <div class="message-content">
+              <div class="message-text">
+                Welcome to <strong>Syllabus Assistant</strong>. Upload your syllabus on the left to begin querying course policies, exam formats, and schedules.
+              </div>
+              <span class="message-time">Ready</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form class="chat-form" id="chatForm">
+          <input 
+            type="text" 
+            id="questionInput" 
+            placeholder="Please upload and index a syllabus PDF first..." 
+            autocomplete="off" 
+            disabled 
+          />
+          <button type="submit" class="btn btn-send" id="sendBtn" disabled aria-label="Send question">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Theme Toggle Inline Helper (Runs before app.js to prevent theme flash) -->
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const themeLabel = document.getElementById('themeLabel');
+    const root = document.documentElement;
+
+    const savedTheme = localStorage.getItem('syllabus_theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    themeToggle.checked = savedTheme === 'dark';
+    themeLabel.textContent = savedTheme.toUpperCase();
+
+    themeToggle.addEventListener('change', () => {
+      const mode = themeToggle.checked ? 'dark' : 'light';
+      root.setAttribute('data-theme', mode);
+      themeLabel.textContent = mode.toUpperCase();
+      localStorage.setItem('syllabus_theme', mode);
+    });
+  </script>
+
+  <!-- Frontend Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
