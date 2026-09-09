@@ -1,12 +1,8 @@
 """
-main.py - Backend API (Role 8)
+main.py - Backend API (Role 7)
 
 Ties together: parser -> chunker -> embedder -> vector_store -> retriever -> llm.
 
-NOTE: This is a starter version drafted by Member 7 (LLM Integration) to unblock
-testing while Member 8 (Backend API) is still building theirs out. Sync with
-Member 8 before merging -- they may already have a different version, and
-this should be treated as a proposal, not the final file.
 
 Endpoints:
   POST /upload  -> upload a syllabus PDF, parse/chunk/embed/store it
