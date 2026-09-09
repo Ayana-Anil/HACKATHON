@@ -19,6 +19,9 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from groq import Groq
+def chunks_to_strings(retrieved_chunks: list[dict]) -> list[str]:
+    """Convert retriever.py's dict-based chunks into plain strings for ask_llm()."""
+    return [c.get("text", c.get("content", "")) for c in retrieved_chunks]
 
 # ── Load .env sitting next to this file ──────────────────────────────
 _env_path = Path(__file__).resolve().parent / ".env"
